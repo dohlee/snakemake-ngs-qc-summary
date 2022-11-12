@@ -78,11 +78,11 @@ for sample, (read1, read2) in pe_reads.items():
 
 prefixes = [f[:-9] for f in read_files]
 
-FASTQC = expand('result/{prefix}_fastqc.zip', prefix=prefixes)
-MULTIQC = 'result/multiqc_report.html'
+# FASTQC = expand('result/{prefix}_fastqc.zip', prefix=prefixes)
+# MULTIQC = 'result/multiqc_report.html'
 
 ALL = []
-ALL.append(MULTIQC)
+ALL.append('ngs_qc_summary.xlsx')
 
 rule all:
     input: ALL
@@ -101,6 +101,15 @@ rule multiqc:
     input:
         expand('result/{prefix}_fastqc.html', prefix=prefixes)
     output:
-        'result/multiqc_report.html'
+        report = 'result/multiqc_report.html',
+        multiqc_data_dir = directory('result/multiqc_data'),
     shell:
-        'multiqc .'
+        'multiqc -o result .'
+
+rule generate_summary:
+    input:
+        'result/multiqc_data'
+    output:
+        'ngs_qc_summary.xlsx'
+    shell:
+        'python scripts/generate_summary.py -i {input} -o {output}'

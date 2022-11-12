@@ -1,1 +1,4 @@
 .snakemake
+result/
+
+ngs_qc_summary.xlsx
